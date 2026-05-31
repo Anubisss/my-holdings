@@ -1,0 +1,12 @@
+**/node_modules
+**/dist
+**/build
+**/.git
+**/*.log
+apps/api/data
+**/*.db
+**/*.db-shm
+**/*.db-wal
+**/*.tsbuildinfo
+.DS_Store
+.github

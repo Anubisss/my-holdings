@@ -1,0 +1,8 @@
+node_modules
+dist
+build
+apps/api/data
+apps/api/drizzle
+package-lock.json
+Dockerfile
+docker-compose.yml

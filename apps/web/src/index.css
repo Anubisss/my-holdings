@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  @apply bg-slate-100 text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100;
+  min-height: 100vh;
+}
+
+/* A dot-grid texture on a fixed, full-viewport layer that sits above the page
+   color but behind all app content. The mask only softens the very edges so the
+   dots span the whole screen without ending abruptly at the corners. */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: radial-gradient(rgba(51, 65, 85, 0.11) 1px, transparent 1.5px);
+  background-size: 26px 26px;
+
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    #000 15%,
+    #000 85%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(to right, transparent 0%, #000 15%, #000 85%, transparent 100%);
+}
+
+.dark body::after {
+  background-image: radial-gradient(rgba(148, 163, 184, 0.1) 1px, transparent 1.5px);
+}
