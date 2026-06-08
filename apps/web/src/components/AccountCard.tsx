@@ -207,7 +207,7 @@ export const AccountCard = ({ account, config }: AccountCardProps) => {
 
       {dialog.kind === 'addHolding' ? (
         <HoldingForm
-          title="Add holding"
+          title={`Add holding - ${account.name}`}
           submitLabel="Add holding"
           priceCurrency={config.primaryCurrency}
           isPending={createHolding.isPending}
