@@ -76,6 +76,21 @@ export const PortfolioSummary = ({ summary, config }: PortfolioSummaryProps) => 
         </div>
 
         <div className="grid grid-cols-2 gap-3 sm:auto-cols-fr sm:grid-flow-col">
+          {secondaryCurrency ? (
+            <StatBox label="Daily FX return">
+              {currencyChange !== null && currencyChangeFigure ? (
+                <span
+                  className={`font-semibold tabular-nums ${signColorClass(currencyChangeFigure.percent)}`}
+                >
+                  <p>{currencyChange}</p>
+                  <p>({formatSignedPercent(currencyChangeFigure.percent)})</p>
+                </span>
+              ) : (
+                fxNote
+              )}
+            </StatBox>
+          ) : null}
+
           <StatBox label="Daily return">
             <ReturnFigure
               rawValue={holdings.dayChange}
@@ -101,21 +116,6 @@ export const PortfolioSummary = ({ summary, config }: PortfolioSummaryProps) => 
               signed
             />
           </StatBox>
-
-          {secondaryCurrency ? (
-            <StatBox label="Daily FX return">
-              {currencyChange !== null && currencyChangeFigure ? (
-                <span
-                  className={`font-semibold tabular-nums ${signColorClass(currencyChangeFigure.percent)}`}
-                >
-                  <p>{currencyChange}</p>
-                  <p>({formatSignedPercent(currencyChangeFigure.percent)})</p>
-                </span>
-              ) : (
-                fxNote
-              )}
-            </StatBox>
-          ) : null}
         </div>
       </div>
     </section>
