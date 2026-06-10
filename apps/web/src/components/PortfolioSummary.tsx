@@ -37,7 +37,7 @@ export const PortfolioSummary = ({ summary, config }: PortfolioSummaryProps) => 
   const { totals } = summary;
   const { holdings } = totals;
 
-  const holdingsReturn = formatSignedRoundedMoney(holdings.returnValue, primaryCurrency);
+  const totalReturn = formatSignedRoundedMoney(totals.totalReturn.value, primaryCurrency);
   const holdingsDayChange = formatSignedRoundedMoney(holdings.dayChange, primaryCurrency);
 
   // The primary portfolio value keeps its full form; the secondary is rounded
@@ -106,12 +106,12 @@ export const PortfolioSummary = ({ summary, config }: PortfolioSummaryProps) => 
 
           <StatBox label="Total return">
             <ReturnFigure
-              rawValue={holdings.returnValue}
-              display={holdingsReturn}
-              percent={holdings.returnPercent}
+              rawValue={totals.totalReturn.value}
+              display={totalReturn}
+              percent={totals.totalReturn.percent}
             />
             <SecondaryMoney
-              value={holdings.returnValueSecondary}
+              value={totals.totalReturn.valueSecondary}
               currency={secondaryCurrency}
               signed
             />

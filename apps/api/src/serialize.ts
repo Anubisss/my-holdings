@@ -326,6 +326,19 @@ export type SummaryDto = {
       /** dayChange / (marketValue - dayChange) * 100 (prior-close basis), or 0. */
       dayChangePercent: number;
     };
+    /**
+     * Whole-portfolio return with cash counted in the basis: cash earns no
+     * return, so the value equals the holdings return, but the percent is
+     * diluted by cash sitting in the portfolio.
+     */
+    totalReturn: {
+      /** portfolioValue - (holdings cost basis + all cash in primary). */
+      value: string;
+      /** `value` converted to the secondary currency, or null. */
+      valueSecondary: string | null;
+      /** value / (holdings cost basis + all cash in primary) * 100, or 0. */
+      percent: number;
+    };
     /** Holdings market value plus all cash, converted to the primary currency. */
     portfolioValue: string;
     /** `portfolioValue` converted to the secondary currency, or null. */
@@ -475,8 +488,17 @@ export const toSummaryDto = (
     ? round2(stocksDayChange.div(holdingsPriorValue).times(100))
     : 0;
 
-  const cashInPrimary = primaryTotal.plus(secondaryInPrimary);
-  const portfolioValue = stocksMarketValue.plus(cashInPrimary);
+  const allCashInPrimary = primaryTotal.plus(secondaryInPrimary);
+  const portfolioValue = stocksMarketValue.plus(allCashInPrimary);
+
+  // Whole-portfolio return: cash sits in both the current value and the basis
+  // at a zero return, so the value reduces to the holdings return while the
+  // percent is diluted by the cash.
+  const portfolioCostBasis = stocksCostBasis.plus(allCashInPrimary);
+  const totalReturn = portfolioValue.minus(portfolioCostBasis);
+  const totalReturnPercent = portfolioCostBasis.gt(0)
+    ? round2(totalReturn.div(portfolioCostBasis).times(100))
+    : 0;
 
   // FX gain/loss in the secondary currency: the primary-denominated portion of
   // the portfolio (everything except the native secondary cash) earns/loses
@@ -507,6 +529,11 @@ export const toSummaryDto = (
         dayChange: stocksDayChange.toString(),
         dayChangeSecondary: toSecondary(stocksDayChange, fx),
         dayChangePercent: holdingsDayChangePercent,
+      },
+      totalReturn: {
+        value: totalReturn.toString(),
+        valueSecondary: toSecondary(totalReturn, fx),
+        percent: totalReturnPercent,
       },
       portfolioValue: portfolioValue.toString(),
       portfolioValueSecondary: toSecondary(portfolioValue, fx),

@@ -138,6 +138,11 @@ export type PortfolioSummary = {
       dayChangeSecondary: string | null;
       dayChangePercent: number;
     };
+    totalReturn: {
+      value: string;
+      valueSecondary: string | null;
+      percent: number;
+    };
     portfolioValue: string;
     portfolioValueSecondary: string | null;
     currencyChange: CurrencyChange | null;
