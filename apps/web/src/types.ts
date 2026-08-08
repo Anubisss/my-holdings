@@ -83,6 +83,8 @@ export type WatchlistInput = {
   pinned: boolean;
 };
 
+export type Notes = Record<string, string>;
+
 export type SummaryStock = {
   ticker: string;
   amount: number;

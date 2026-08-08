@@ -6,6 +6,7 @@ import { config } from '../config.js';
 import { db } from '../db/client.js';
 import { holdings } from '../db/schema.js';
 import { notFound } from '../lib/errors.js';
+import { pruneOrphanNote } from '../lib/notes.js';
 import { getQuotes, withFxTicker } from '../lib/quotes.js';
 import { idParamSchema, updateHoldingSchema } from '../schemas.js';
 import { resolveFx, toHoldingDto } from '../serialize.js';
@@ -36,6 +37,8 @@ export const registerHoldingRoutes = (app: FastifyInstance): void => {
         'Updated holding',
       );
 
+      if (existing.ticker !== request.body.ticker) pruneOrphanNote(existing.ticker);
+
       const updated = db.select().from(holdings).where(eq(holdings.id, request.params.id)).get();
       if (!updated) return null;
 
@@ -59,6 +62,8 @@ export const registerHoldingRoutes = (app: FastifyInstance): void => {
       db.delete(holdings).where(eq(holdings.id, request.params.id)).run();
 
       request.log.info({ holdingId: request.params.id }, 'Deleted holding');
+
+      pruneOrphanNote(existing.ticker);
 
       reply.code(204);
       return null;

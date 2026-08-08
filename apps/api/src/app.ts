@@ -10,6 +10,7 @@ import { logger } from './lib/logger.js';
 import { registerAccountRoutes } from './routes/accounts.js';
 import { registerConfigRoutes } from './routes/config.js';
 import { registerHoldingRoutes } from './routes/holdings.js';
+import { registerNoteRoutes } from './routes/notes.js';
 import { registerSummaryRoutes } from './routes/summary.js';
 import { registerWatchlistRoutes } from './routes/watchlist.js';
 
@@ -49,6 +50,7 @@ export const buildApp = (): FastifyInstance => {
   registerAccountRoutes(app);
   registerHoldingRoutes(app);
   registerWatchlistRoutes(app);
+  registerNoteRoutes(app);
   registerSummaryRoutes(app);
 
   return app;

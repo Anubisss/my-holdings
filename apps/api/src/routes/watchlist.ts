@@ -7,6 +7,7 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { db } from '../db/client.js';
 import { watchlist, type WatchlistRow } from '../db/schema.js';
 import { notFound } from '../lib/errors.js';
+import { pruneOrphanNote } from '../lib/notes.js';
 import { getQuotes } from '../lib/quotes.js';
 import { createWatchlistItemSchema, idParamSchema, updateWatchlistItemSchema } from '../schemas.js';
 import { toWatchlistItemDto } from '../serialize.js';
@@ -83,6 +84,8 @@ export const registerWatchlistRoutes = (app: FastifyInstance): void => {
         'Updated watchlist item',
       );
 
+      if (existing.ticker !== request.body.ticker) pruneOrphanNote(existing.ticker);
+
       const updated = db.select().from(watchlist).where(eq(watchlist.id, request.params.id)).get();
       if (!updated) return null;
 
@@ -102,6 +105,8 @@ export const registerWatchlistRoutes = (app: FastifyInstance): void => {
       db.delete(watchlist).where(eq(watchlist.id, request.params.id)).run();
 
       request.log.info({ watchlistId: request.params.id }, 'Deleted watchlist item');
+
+      pruneOrphanNote(existing.ticker);
 
       reply.code(204);
       return null;

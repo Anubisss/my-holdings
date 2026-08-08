@@ -8,6 +8,7 @@ import { config } from '../config.js';
 import { db } from '../db/client.js';
 import { accounts, holdings } from '../db/schema.js';
 import { badRequest, notFound } from '../lib/errors.js';
+import { pruneOrphanNote } from '../lib/notes.js';
 import { getQuotes, withFxTicker } from '../lib/quotes.js';
 import {
   createAccountSchema,
@@ -96,10 +97,18 @@ export const registerAccountRoutes = (app: FastifyInstance): void => {
       const existing = db.select().from(accounts).where(eq(accounts.id, request.params.id)).get();
       if (!existing) throw notFound('Account not found');
 
+      const removedTickers = db
+        .select({ ticker: holdings.ticker })
+        .from(holdings)
+        .where(eq(holdings.accountId, request.params.id))
+        .all();
+
       // Holdings are removed via ON DELETE CASCADE.
       db.delete(accounts).where(eq(accounts.id, request.params.id)).run();
 
       request.log.info({ accountId: request.params.id }, 'Deleted account');
+
+      for (const { ticker } of removedTickers) pruneOrphanNote(ticker);
 
       reply.code(204);
       return null;

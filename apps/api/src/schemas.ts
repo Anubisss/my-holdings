@@ -42,6 +42,8 @@ export const displayNameSchema = z
   .nullable()
   .optional();
 
+export const noteBodySchema = z.string().trim().max(2000, 'Note must be maximum 2000 characters');
+
 export const amountSchema = z
   .number()
   .int('Amount must be a whole number')
@@ -116,8 +118,16 @@ export const updateWatchlistItemSchema = z.object({
   pinned: z.boolean().optional(),
 });
 
+export const updateNoteSchema = z.object({
+  body: noteBodySchema,
+});
+
 export const idParamSchema = z.object({
   id: z.string().min(1),
+});
+
+export const tickerParamSchema = z.object({
+  ticker: watchlistTickerSchema,
 });
 
 export type CreateAccountInput = z.infer<typeof createAccountSchema>;

@@ -2,6 +2,7 @@
 
 A simple, single-user web app to track your current stock portfolio.
 It stores accounts, cash balances, and stock holdings (positions).
+You can add stocks to your watchlist and notes to stocks.
 No login, no history, just your current holdings.
 
 NOTE: Account holdings (stocks) only work properly if the holding you add has USD ($) currency.
@@ -86,6 +87,7 @@ Modals
 
 <a href=".github/readme_assets/accounts-add-holding.png"><img src=".github/readme_assets/accounts-add-holding.png" width="400" alt="Modal: add new holding for an account"></a>
 <a href=".github/readme_assets/watchlist-edit.png"><img src=".github/readme_assets/watchlist-edit.png" width="400" alt="Modal: edit watchlist"></a>
+<a href=".github/readme_assets/notes-edit.png"><img src=".github/readme_assets/notes-edit.png" width="400" alt="Modal: edit note"></a>
 
 ## Demo video
 

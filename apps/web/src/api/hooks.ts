@@ -6,6 +6,7 @@ import type {
   CashInput,
   Holding,
   HoldingInput,
+  Notes,
   PortfolioSummary,
   WatchlistInput,
   WatchlistItem,
@@ -16,6 +17,7 @@ const accountsKey = ['accounts'] as const;
 const configKey = ['config'] as const;
 const watchlistKey = ['watchlist'] as const;
 const summaryKey = ['summary'] as const;
+const notesKey = ['notes'] as const;
 
 const REFETCH_INTERVAL = 20_000;
 
@@ -157,5 +159,23 @@ export const useDeleteWatchlistItem = () => {
   return useMutation({
     mutationFn: (id: string) => apiFetch<void>(`/watchlist/${id}`, { method: 'DELETE' }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: watchlistKey }),
+  });
+};
+
+export const useNotes = () =>
+  useQuery({
+    queryKey: notesKey,
+    queryFn: () => apiFetch<Notes>('/notes'),
+  });
+
+export const useSaveNote = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ ticker, body }: { ticker: string; body: string }) =>
+      apiFetch<void>(`/notes/${encodeURIComponent(ticker)}`, {
+        method: 'PUT',
+        body: JSON.stringify({ body }),
+      }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: notesKey }),
   });
 };

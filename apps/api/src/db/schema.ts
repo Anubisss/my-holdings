@@ -44,6 +44,18 @@ export const watchlist = sqliteTable('watchlist', {
     .default(sql`(CURRENT_TIMESTAMP)`),
 });
 
+export const notes = sqliteTable('notes', {
+  ticker: text('ticker').primaryKey(),
+  body: text('body').notNull(),
+  createdAt: text('created_at')
+    .notNull()
+    .default(sql`(CURRENT_TIMESTAMP)`),
+  updatedAt: text('updated_at')
+    .notNull()
+    .default(sql`(CURRENT_TIMESTAMP)`),
+});
+
 export type AccountRow = typeof accounts.$inferSelect;
 export type HoldingRow = typeof holdings.$inferSelect;
 export type WatchlistRow = typeof watchlist.$inferSelect;
+export type NoteRow = typeof notes.$inferSelect;
