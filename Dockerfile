@@ -1,4 +1,8 @@
-FROM node:24-bookworm-slim AS builder
+# Pinned: Node 24.19.0 added cleanup hooks to node::ObjectWrap, which makes
+# better-sqlite3 abort on `CHECK_NOT_NULL(env)` when a Statement is garbage
+# collected with no entered V8 context. See nodejs/node#63985 for the fix;
+# unpin once it ships in a 24.x release.
+FROM node:24.18.1-bookworm-slim AS builder
 WORKDIR /app
 
 RUN apt-get update \
@@ -20,7 +24,7 @@ RUN npm run format:check \
 # Drop dev dependencies so only what the runtime needs is carried forward.
 RUN npm prune --omit=dev
 
-FROM node:24-bookworm-slim AS runtime
+FROM node:24.18.1-bookworm-slim AS runtime
 WORKDIR /app
 
 ENV NODE_ENV=production \
