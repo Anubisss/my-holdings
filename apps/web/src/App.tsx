@@ -13,9 +13,12 @@ import { HoldingsBreakdown } from './components/HoldingsBreakdown';
 
 const AppHeader = () => (
   <header className="mb-4 flex items-center justify-between gap-3 border-b border-slate-200 pb-4 dark:border-slate-800">
-    <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100">
-      MyHoldings
-    </h1>
+    <div className="flex items-center gap-2.5">
+      <img src="/favicon.svg" alt="" className="h-8 w-8" />
+      <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100">
+        MyHoldings
+      </h1>
+    </div>
     <ThemeToggle />
   </header>
 );

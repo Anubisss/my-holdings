@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="MyHoldings">
+  <rect width="64" height="64" rx="15" fill="#0f172a" />
+  <!-- MH ligature: the M's right stem at x=37 doubles as the H's left stem, which
+       keeps the two letters tight enough to stay balanced inside the tile.
+       Butt caps and mitred joins keep the terminals square like a drawn letterform. -->
+  <g fill="none" stroke="#f1f5f9" stroke-width="7" stroke-linecap="butt" stroke-linejoin="miter">
+    <path d="M14 44 V20 L25.5 34 L37 20 V44" />
+    <path d="M37 32 H50" />
+    <path d="M50 20 V44" />
+  </g>
+</svg>

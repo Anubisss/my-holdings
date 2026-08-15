@@ -1,3 +1,5 @@
+<img src="apps/web/public/favicon.svg" width="72" height="72" alt="MyHoldings logo">
+
 # MyHoldings
 
 A simple, single-user web app to track your current stock portfolio.
