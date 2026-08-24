@@ -11,6 +11,7 @@ export type AppConfig = {
   primaryCurrency: Currency;
   secondaryCurrency: Currency | null;
   secondaryRateTicker: string | null;
+  portfolioValueHistoryEnabled: boolean;
 };
 
 /** USD is always the primary (base) currency. */
@@ -38,6 +39,9 @@ export const loadConfig = (): AppConfig => {
   const port = Number.parseInt(process.env.PORT ?? '3000', 10);
   const secondary = parseSecondaryCurrency(process.env.SECONDARY_CURRENCY);
 
+  const pvhRaw = process.env.PORTFOLIO_VALUE_HISTORY_ENABLED;
+  const portfolioValueHistoryEnabled = pvhRaw === undefined || pvhRaw.toLowerCase() === 'true';
+
   return {
     port: Number.isNaN(port) ? 3000 : port,
     host: process.env.HOST ?? '0.0.0.0',
@@ -45,6 +49,7 @@ export const loadConfig = (): AppConfig => {
     primaryCurrency: PRIMARY_CURRENCY,
     secondaryCurrency: secondary?.currency ?? null,
     secondaryRateTicker: secondary?.rateTicker ?? null,
+    portfolioValueHistoryEnabled,
   };
 };
 

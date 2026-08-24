@@ -2,6 +2,7 @@ import { buildApp } from './app.js';
 import { config } from './config.js';
 import { runMigrations } from './db/migrate.js';
 import { logger } from './lib/logger.js';
+import { startScheduler } from './lib/scheduler.js';
 
 const start = async (): Promise<void> => {
   runMigrations();
@@ -14,6 +15,12 @@ const start = async (): Promise<void> => {
   } catch (error) {
     logger.error(error, 'Failed to start API server');
     process.exit(1);
+  }
+
+  if (config.portfolioValueHistoryEnabled) {
+    void startScheduler();
+  } else {
+    logger.info('Portfolio value history is disabled');
   }
 };
 

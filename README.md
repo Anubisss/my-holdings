@@ -5,7 +5,8 @@
 A simple, single-user web app to track your current stock portfolio.
 It stores accounts, cash balances, and stock holdings (positions).
 You can add stocks to your watchlist and notes to stocks.
-No login, no history, just your current holdings.
+Portfolio value is automatically saved every weekday after US market close (4:20 PM ET).
+No login, no account/transaction history, just your current holdings.
 
 NOTE: Account holdings (stocks) only work properly if the holding you add has USD ($) currency.
 

@@ -55,7 +55,19 @@ export const notes = sqliteTable('notes', {
     .default(sql`(CURRENT_TIMESTAMP)`),
 });
 
+export const portfolioValueHistory = sqliteTable('portfolio_value_history', {
+  id: text('id').primaryKey(),
+  date: text('date').notNull().unique(),
+  currencyRate: text('currency_rate'),
+  valuePrimary: text('value_primary').notNull(),
+  valueSecondary: text('value_secondary'),
+  createdAt: text('created_at')
+    .notNull()
+    .default(sql`(CURRENT_TIMESTAMP)`),
+});
+
 export type AccountRow = typeof accounts.$inferSelect;
 export type HoldingRow = typeof holdings.$inferSelect;
 export type WatchlistRow = typeof watchlist.$inferSelect;
 export type NoteRow = typeof notes.$inferSelect;
+export type PortfolioValueHistoryRow = typeof portfolioValueHistory.$inferSelect;
