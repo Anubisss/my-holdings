@@ -22,6 +22,12 @@ const start = async (): Promise<void> => {
   } else {
     logger.info('Portfolio value history is disabled');
   }
+
+  if (config.telegram) {
+    logger.info('Telegram notifications enabled');
+  } else {
+    logger.info('Telegram notifications disabled (TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID not set)');
+  }
 };
 
 void start();

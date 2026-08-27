@@ -3,6 +3,7 @@ import { eq } from 'drizzle-orm';
 import { db } from '../db/client.js';
 import { portfolioValueHistory } from '../db/schema.js';
 import { logger } from './logger.js';
+import { sendDailyNotification } from './notification.js';
 import { saveSnapshot } from './snapshot.js';
 
 const TZ = 'America/New_York';
@@ -131,6 +132,7 @@ const scheduleNext = (): void => {
   logger.info({ date: dateStr, inMinutes: minutes }, 'Next snapshot scheduled');
 
   setTimeout(async () => {
+    await sendDailyNotification(dateStr);
     try {
       await saveSnapshot(dateStr);
     } catch (error) {
@@ -151,6 +153,7 @@ export const startScheduler = async (): Promise<void> => {
 
   if (isWeekday(et.dayOfWeek) && isPastTarget(et) && !snapshotExists(today)) {
     logger.info({ date: today }, 'Missed snapshot detected, attempting saving snapshot');
+    await sendDailyNotification(today);
     try {
       await saveSnapshot(today);
     } catch (error) {
