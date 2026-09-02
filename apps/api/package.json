@@ -17,6 +17,7 @@
     "format": "prettier --write \"src/**/*.ts\""
   },
   "dependencies": {
+    "@fastify/multipart": "^10.1.1",
     "better-sqlite3": "^11.8.1",
     "big.js": "^6.2.2",
     "drizzle-orm": "^0.45.2",

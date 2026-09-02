@@ -1,3 +1,4 @@
+import multipart from '@fastify/multipart';
 import Fastify, { type FastifyError, type FastifyInstance } from 'fastify';
 import {
   hasZodFastifySchemaValidationErrors,
@@ -11,6 +12,7 @@ import { registerAccountRoutes } from './routes/accounts.js';
 import { registerConfigRoutes } from './routes/config.js';
 import { registerHoldingRoutes } from './routes/holdings.js';
 import { registerNoteRoutes } from './routes/notes.js';
+import { registerPortfolioHistoryRoutes } from './routes/portfolio-history.js';
 import { registerSummaryRoutes } from './routes/summary.js';
 import { registerWatchlistRoutes } from './routes/watchlist.js';
 
@@ -24,6 +26,9 @@ export const buildApp = (): FastifyInstance => {
 
   app.setValidatorCompiler(validatorCompiler);
   app.setSerializerCompiler(serializerCompiler);
+
+  // 10 MB
+  app.register(multipart, { limits: { fileSize: 10 * 1024 * 1024 } });
 
   app.setErrorHandler((error: FastifyError, _request, reply) => {
     if (hasZodFastifySchemaValidationErrors(error)) {
@@ -52,6 +57,7 @@ export const buildApp = (): FastifyInstance => {
   registerWatchlistRoutes(app);
   registerNoteRoutes(app);
   registerSummaryRoutes(app);
+  registerPortfolioHistoryRoutes(app);
 
   return app;
 };

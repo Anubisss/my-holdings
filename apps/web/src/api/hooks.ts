@@ -11,7 +11,7 @@ import type {
   WatchlistInput,
   WatchlistItem,
 } from '../types';
-import { apiFetch } from './client';
+import { apiFetch, apiUploadCsv } from './client';
 
 const accountsKey = ['accounts'] as const;
 const configKey = ['config'] as const;
@@ -179,3 +179,8 @@ export const useSaveNote = () => {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: notesKey }),
   });
 };
+
+export const useImportPortfolioHistory = () =>
+  useMutation({
+    mutationFn: (file: File) => apiUploadCsv('/portfolio-history/import', file),
+  });

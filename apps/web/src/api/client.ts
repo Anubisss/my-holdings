@@ -38,3 +38,37 @@ export const apiFetch = async <T>(path: string, init?: RequestInit): Promise<T> 
 
   return (await response.json()) as T;
 };
+
+export const apiFetchBlob = async (path: string): Promise<{ blob: Blob; filename: string }> => {
+  const response = await fetch(`/api${path}`);
+  if (!response.ok) {
+    const msg = await parseError(response);
+    throw new ApiError(response.status, msg);
+  }
+  const disposition = response.headers.get('Content-Disposition') ?? '';
+  const match = disposition.match(/filename="?([^"]+)"?/);
+  const filename = match?.[1] ?? 'download.csv';
+  const blob = await response.blob();
+  return { blob, filename };
+};
+
+export type UploadResult = { imported: number } | { error: string; errors: string[] };
+
+export const apiUploadCsv = async (path: string, file: File): Promise<UploadResult> => {
+  const formData = new FormData();
+  formData.append('file', file);
+  const response = await fetch(`/api${path}`, { method: 'POST', body: formData });
+
+  let data: Record<string, unknown>;
+  try {
+    data = (await response.json()) as Record<string, unknown>;
+  } catch {
+    throw new ApiError(response.status, response.statusText);
+  }
+
+  if (!response.ok) {
+    if (Array.isArray(data.errors)) return data as unknown as UploadResult;
+    throw new ApiError(response.status, (data.message as string) ?? response.statusText);
+  }
+  return data as unknown as UploadResult;
+};

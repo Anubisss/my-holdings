@@ -6,6 +6,7 @@ A simple, single-user web app to track your current stock portfolio.
 It stores accounts, cash balances, and stock holdings (positions).
 You can add stocks to your watchlist and notes to stocks.
 Portfolio value is automatically saved and a Telegram daily summary (portfolio performance, watchlist, holdings) is sent every weekday after US market close (4:20 PM ET).
+Portfolio value history can be imported from and exported to CSV.
 No login, no account/transaction history, just your current holdings.
 
 NOTE: Account holdings (stocks) only work properly if the holding you add has USD ($) currency.

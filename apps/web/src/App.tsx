@@ -1,8 +1,10 @@
 import { useState } from 'react';
+import { Link, Route, Routes } from 'react-router-dom';
 
 import { useAccounts, useConfig, useCreateAccount, useSummary, useWatchlist } from './api/hooks';
 import { AccountCard } from './components/AccountCard';
 import { AccountForm } from './components/AccountForm';
+import { PortfolioHistory } from './components/PortfolioHistory';
 import { PortfolioSummary } from './components/PortfolioSummary';
 import { PriceBoard } from './components/PriceBoard';
 import { ThemeToggle } from './components/ThemeToggle';
@@ -11,15 +13,39 @@ import { WatchlistEditor } from './components/WatchlistEditor';
 import { uniqueHoldings } from './lib/holdings';
 import { HoldingsBreakdown } from './components/HoldingsBreakdown';
 
+const HistoryIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 20 20"
+    fill="currentColor"
+    className="h-5 w-5"
+    aria-hidden="true"
+  >
+    <path d="M15.5 2A1.5 1.5 0 0014 3.5v13a1.5 1.5 0 001.5 1.5h1a1.5 1.5 0 001.5-1.5v-13A1.5 1.5 0 0016.5 2h-1zM9.5 6A1.5 1.5 0 008 7.5v9A1.5 1.5 0 009.5 18h1a1.5 1.5 0 001.5-1.5v-9A1.5 1.5 0 0010.5 6h-1zM3.5 10A1.5 1.5 0 002 11.5v5A1.5 1.5 0 003.5 18h1A1.5 1.5 0 006 16.5v-5A1.5 1.5 0 004.5 10h-1z" />
+  </svg>
+);
+
 const AppHeader = () => (
   <header className="mb-4 flex items-center justify-between gap-3 border-b border-slate-200 pb-4 dark:border-slate-800">
     <div className="flex items-center gap-2.5">
-      <img src="/favicon.svg" alt="" className="h-8 w-8" />
-      <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100">
-        MyHoldings
-      </h1>
+      <Link to="/" className="flex items-center gap-2.5" aria-label="Home">
+        <img src="/favicon.svg" alt="" className="h-8 w-8" />
+        <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100">
+          MyHoldings
+        </h1>
+      </Link>
     </div>
-    <ThemeToggle />
+    <div className="flex items-center gap-2">
+      <Link
+        to="/history"
+        className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-200 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
+        aria-label="Portfolio History"
+      >
+        <HistoryIcon />
+        <span className="hidden sm:inline">History</span>
+      </Link>
+      <ThemeToggle />
+    </div>
   </header>
 );
 
@@ -46,45 +72,22 @@ const AppFooter = () => (
   </footer>
 );
 
-export const App = () => {
-  const config = useConfig();
+const HomePage = () => {
   const accounts = useAccounts();
   const watchlist = useWatchlist();
   const summary = useSummary();
+  const config = useConfig();
   const createAccount = useCreateAccount();
   const [isCreating, setIsCreating] = useState(false);
   const [isEditingWatchlist, setIsEditingWatchlist] = useState(false);
 
-  const isInitialLoading = config.isLoading || accounts.isLoading;
-  const loadError = config.error ?? accounts.error;
-
-  // Gate the whole app: nothing is usable until config and accounts have loaded.
-  if (isInitialLoading || loadError || !config.data || !accounts.data) {
-    return (
-      <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-4 pb-16 pt-6">
-        <AppHeader />
-        <div className="flex flex-1 items-center justify-center">
-          {loadError ? (
-            <p className="rounded-lg bg-red-50 p-3 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-300">
-              Failed to load: {loadError.message}
-            </p>
-          ) : (
-            <Spinner label="Loading your portfolio..." />
-          )}
-        </div>
-      </div>
-    );
-  }
-
-  const { data: configData } = config;
-  const { data: accountsData } = accounts;
+  const configData = config.data!;
+  const accountsData = accounts.data!;
   const holdings = uniqueHoldings(accountsData);
   const watchlistItems = watchlist.data ?? [];
 
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-4 pb-16 pt-6">
-      <AppHeader />
-
+    <>
       {summary.data ? <PortfolioSummary summary={summary.data} config={configData} /> : null}
 
       <PriceBoard
@@ -145,7 +148,46 @@ export const App = () => {
       {isEditingWatchlist ? (
         <WatchlistEditor items={watchlistItems} onClose={() => setIsEditingWatchlist(false)} />
       ) : null}
+    </>
+  );
+};
 
+const HistoryPage = () => {
+  const config = useConfig();
+  return config.data ? <PortfolioHistory config={config.data} /> : null;
+};
+
+export const App = () => {
+  const config = useConfig();
+  const accounts = useAccounts();
+
+  const isInitialLoading = config.isLoading || accounts.isLoading;
+  const loadError = config.error ?? accounts.error;
+
+  if (isInitialLoading || loadError || !config.data || !accounts.data) {
+    return (
+      <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-4 pb-16 pt-6">
+        <AppHeader />
+        <div className="flex flex-1 items-center justify-center">
+          {loadError ? (
+            <p className="rounded-lg bg-red-50 p-3 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-300">
+              Failed to load: {loadError.message}
+            </p>
+          ) : (
+            <Spinner label="Loading your portfolio..." />
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-4 pb-16 pt-6">
+      <AppHeader />
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/history" element={<HistoryPage />} />
+      </Routes>
       <AppFooter />
     </div>
   );
