@@ -408,10 +408,9 @@ export const toSummaryDto = (
   };
 
   let secondaryCash: SummarySecondaryCashDto | null = null;
-  let secondaryTotal = new Big(0);
   let secondaryInPrimary = new Big(0);
   if (secondaryCurrency) {
-    secondaryTotal = sumCash(accountRows, (row) => row.cashSecondary);
+    const secondaryTotal = sumCash(accountRows, (row) => row.cashSecondary);
     const valuePrimary = toPrimary(secondaryTotal, fx);
     if (valuePrimary) secondaryInPrimary = new Big(valuePrimary);
     secondaryCash = {

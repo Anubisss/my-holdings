@@ -1,5 +1,5 @@
 import multipart from '@fastify/multipart';
-import Fastify, { type FastifyError, type FastifyInstance } from 'fastify';
+import Fastify, { LogController, type FastifyError, type FastifyInstance } from 'fastify';
 import {
   hasZodFastifySchemaValidationErrors,
   serializerCompiler,
@@ -21,7 +21,7 @@ export const buildApp = (): FastifyInstance => {
     loggerInstance: logger,
     // Suppress Fastify's automatic per-request "incoming request" /
     // "request completed" logs; we only want our explicit log lines.
-    disableRequestLogging: true,
+    logController: new LogController({ disableRequestLogging: true }),
   });
 
   app.setValidatorCompiler(validatorCompiler);

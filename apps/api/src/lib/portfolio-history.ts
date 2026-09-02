@@ -231,7 +231,6 @@ const validateRows = (
           currencyRate = crRaw;
         }
       }
-      colIdx++;
 
       const hasVs = vsRaw !== '';
       const hasCr = crRaw !== '';
