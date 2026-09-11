@@ -1,10 +1,22 @@
 import type { FastifyInstance } from 'fastify';
+import { asc } from 'drizzle-orm';
 
+import { db } from '../db/client.js';
+import { portfolioValueHistory } from '../db/schema.js';
 import { badRequest } from '../lib/errors.js';
 import { logger } from '../lib/logger.js';
 import { exportCsv, importCsv, isImportError } from '../lib/portfolio-history.js';
 
 export const registerPortfolioHistoryRoutes = (app: FastifyInstance): void => {
+  app.get('/api/portfolio-history', async (_request, reply) => {
+    const rows = db
+      .select()
+      .from(portfolioValueHistory)
+      .orderBy(asc(portfolioValueHistory.date))
+      .all();
+    return reply.send(rows);
+  });
+
   app.get('/api/portfolio-history/export', async (_request, reply) => {
     const { csv, filename } = exportCsv();
 

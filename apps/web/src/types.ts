@@ -9,6 +9,15 @@ export type AppConfig = {
   secondaryCurrency: Currency | null;
 };
 
+export type PortfolioValueHistoryEntry = {
+  id: string;
+  date: string;
+  valuePrimary: string;
+  valueSecondary: string | null;
+  currencyRate: string | null;
+  createdAt: string;
+};
+
 export type PriceQuote = {
   valid: boolean;
   marketState: string | null;

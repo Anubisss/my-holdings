@@ -8,6 +8,7 @@ import type {
   HoldingInput,
   Notes,
   PortfolioSummary,
+  PortfolioValueHistoryEntry,
   WatchlistInput,
   WatchlistItem,
 } from '../types';
@@ -179,6 +180,15 @@ export const useSaveNote = () => {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: notesKey }),
   });
 };
+
+const portfolioHistoryKey = ['portfolio-history'] as const;
+
+export const usePortfolioHistory = () =>
+  useQuery({
+    queryKey: portfolioHistoryKey,
+    queryFn: () => apiFetch<PortfolioValueHistoryEntry[]>('/portfolio-history'),
+    staleTime: 5 * 60 * 1000,
+  });
 
 export const useImportPortfolioHistory = () =>
   useMutation({

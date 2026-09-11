@@ -2,8 +2,9 @@ import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { apiFetchBlob, type UploadResult } from '../api/client';
-import { useImportPortfolioHistory } from '../api/hooks';
+import { useImportPortfolioHistory, usePortfolioHistory } from '../api/hooks';
 import type { AppConfig } from '../types';
+import { PortfolioCharts } from './PortfolioCharts';
 import { Button, Spinner } from './ui';
 
 type Props = {
@@ -40,6 +41,7 @@ const columnInfo = (config: AppConfig): string[] => {
 };
 
 export const PortfolioHistory = ({ config }: Props) => {
+  const [valuesHidden, setValuesHidden] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [exportError, setExportError] = useState<string | null>(null);
 
@@ -47,6 +49,8 @@ export const PortfolioHistory = ({ config }: Props) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const importMutation = useImportPortfolioHistory();
   const [importResult, setImportResult] = useState<UploadResult | null>(null);
+
+  const history = usePortfolioHistory();
 
   const handleExport = async () => {
     setIsExporting(true);
@@ -119,107 +123,183 @@ export const PortfolioHistory = ({ config }: Props) => {
           Back
         </Link>
 
-        <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">Portfolio History</h2>
-        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-          Manage your portfolio value history data. Charts coming soon.
-        </p>
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">
+            Portfolio History
+          </h2>
+          <button
+            onClick={() => setValuesHidden((v) => !v)}
+            className="rounded-full p-2 text-slate-400 transition hover:bg-slate-200 hover:text-slate-700 dark:text-slate-500 dark:hover:bg-slate-700 dark:hover:text-slate-200"
+            aria-pressed={valuesHidden}
+            aria-label={valuesHidden ? 'Show portfolio values' : 'Hide portfolio values'}
+            tabIndex={0}
+          >
+            {valuesHidden ? (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
+                <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
+                <line x1="1" y1="1" x2="23" y2="23" />
+              </svg>
+            ) : (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            )}
+          </button>
+        </div>
       </div>
 
-      {/* Export */}
-      <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-        <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-          Export
-        </h3>
-        <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
-          Export all portfolio history data as a CSV file.
+      {/* Charts */}
+      {history.isLoading ? (
+        <Spinner label="Loading history..." />
+      ) : history.error ? (
+        <p className="rounded-lg bg-red-50 p-3 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-300">
+          Failed to load history: {history.error.message}
         </p>
-        {isExporting ? (
-          <Spinner label="Exporting CSV..." />
-        ) : (
-          <Button onClick={handleExport}>Export CSV</Button>
-        )}
-        {exportError ? (
-          <p className="mt-3 text-sm text-red-600 dark:text-red-400">{exportError}</p>
-        ) : null}
-      </section>
+      ) : (
+        <PortfolioCharts config={config} data={history.data ?? []} valuesHidden={valuesHidden} />
+      )}
 
-      {/* Import */}
-      <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-        <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-          Import
-        </h3>
+      {/* Data Management (collapsed by default) */}
+      <details className="group rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <summary className="flex cursor-pointer items-center gap-2 px-5 py-4 text-sm font-semibold text-slate-600 transition-colors hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            className="h-4 w-4 shrink-0 transition-transform group-open:rotate-90"
+            aria-hidden="true"
+          >
+            <path
+              fillRule="evenodd"
+              d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z"
+              clipRule="evenodd"
+            />
+          </svg>
+          Data Management
+        </summary>
 
-        <div className="mb-4 flex flex-col gap-3">
-          <WarningBox>
-            Importing a CSV will <strong>replace all existing</strong> portfolio history data. The
-            imported data becomes your new portfolio history.
-          </WarningBox>
-
-          <InfoBox>
-            The CSV must match the export format. You can get a valid template by exporting your
-            current data, even an empty export contains the correct header row.
-          </InfoBox>
-
-          <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800/50">
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-              Expected columns
+        <div className="flex flex-col gap-6 px-5 pb-5 pt-2">
+          {/* Export */}
+          <section>
+            <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+              Export
+            </h3>
+            <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
+              Export all portfolio history data as a CSV file.
             </p>
-            <ul className="space-y-1 text-xs text-slate-600 dark:text-slate-300">
-              {columnInfo(config).map((line) => (
-                <li key={line} className="font-mono">
-                  {line}
-                </li>
-              ))}
-            </ul>
-          </div>
+            {isExporting ? (
+              <Spinner label="Exporting CSV..." />
+            ) : (
+              <Button onClick={handleExport}>Export CSV</Button>
+            )}
+            {exportError ? (
+              <p className="mt-3 text-sm text-red-600 dark:text-red-400">{exportError}</p>
+            ) : null}
+          </section>
+
+          <hr className="border-slate-200 dark:border-slate-700" />
+
+          {/* Import */}
+          <section>
+            <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+              Import
+            </h3>
+
+            <div className="mb-4 flex flex-col gap-3">
+              <WarningBox>
+                Importing a CSV will <strong>replace all existing</strong> portfolio history data.
+                The imported data becomes your new portfolio history.
+              </WarningBox>
+
+              <InfoBox>
+                The CSV must match the export format. You can get a valid template by exporting your
+                current data, even an empty export contains the correct header row.
+              </InfoBox>
+
+              <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800/50">
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                  Expected columns
+                </p>
+                <ul className="space-y-1 text-xs text-slate-600 dark:text-slate-300">
+                  {columnInfo(config).map((line) => (
+                    <li key={line} className="font-mono">
+                      {line}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".csv"
+                onChange={handleFileChange}
+                className="cursor-pointer text-sm text-slate-600 file:mr-3 file:cursor-pointer file:rounded-lg file:border-0 file:bg-slate-200 file:px-3 file:py-2 file:text-sm file:font-medium file:text-slate-900 file:transition hover:file:bg-slate-300 dark:text-slate-300 dark:file:bg-slate-700 dark:file:text-slate-100 dark:hover:file:bg-slate-600"
+                aria-label="Select CSV file"
+                tabIndex={0}
+              />
+              <Button onClick={handleImport} disabled={!selectedFile || importMutation.isPending}>
+                Import
+              </Button>
+            </div>
+
+            {importMutation.isPending ? (
+              <div className="mt-4">
+                <Spinner label="Importing and validating..." />
+              </div>
+            ) : null}
+
+            {importedCount !== null ? (
+              <p className="mt-4 rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-800 dark:border-green-900 dark:bg-green-950/40 dark:text-green-300">
+                Successfully imported {importedCount} row{importedCount !== 1 ? 's' : ''}.
+              </p>
+            ) : null}
+
+            {importError ? (
+              <p className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">
+                {importError}
+              </p>
+            ) : null}
+
+            {validationErrors && validationErrors.length > 0 ? (
+              <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-900 dark:bg-red-950/40">
+                <p className="mb-2 text-sm font-semibold text-red-700 dark:text-red-300">
+                  Validation errors ({validationErrors.length})
+                </p>
+                <ul className="max-h-60 space-y-1 overflow-y-auto text-xs font-mono text-red-700 dark:text-red-300">
+                  {validationErrors.map((err, i) => (
+                    <li key={i}>{err}</li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+          </section>
         </div>
-
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".csv"
-            onChange={handleFileChange}
-            className="cursor-pointer text-sm text-slate-600 file:mr-3 file:cursor-pointer file:rounded-lg file:border-0 file:bg-slate-200 file:px-3 file:py-2 file:text-sm file:font-medium file:text-slate-900 file:transition hover:file:bg-slate-300 dark:text-slate-300 dark:file:bg-slate-700 dark:file:text-slate-100 dark:hover:file:bg-slate-600"
-            aria-label="Select CSV file"
-            tabIndex={0}
-          />
-          <Button onClick={handleImport} disabled={!selectedFile || importMutation.isPending}>
-            Import
-          </Button>
-        </div>
-
-        {importMutation.isPending ? (
-          <div className="mt-4">
-            <Spinner label="Importing and validating..." />
-          </div>
-        ) : null}
-
-        {importedCount !== null ? (
-          <p className="mt-4 rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-800 dark:border-green-900 dark:bg-green-950/40 dark:text-green-300">
-            Successfully imported {importedCount} row{importedCount !== 1 ? 's' : ''}.
-          </p>
-        ) : null}
-
-        {importError ? (
-          <p className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">
-            {importError}
-          </p>
-        ) : null}
-
-        {validationErrors && validationErrors.length > 0 ? (
-          <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-900 dark:bg-red-950/40">
-            <p className="mb-2 text-sm font-semibold text-red-700 dark:text-red-300">
-              Validation errors ({validationErrors.length})
-            </p>
-            <ul className="max-h-60 space-y-1 overflow-y-auto text-xs font-mono text-red-700 dark:text-red-300">
-              {validationErrors.map((err, i) => (
-                <li key={i}>{err}</li>
-              ))}
-            </ul>
-          </div>
-        ) : null}
-      </section>
+      </details>
     </div>
   );
 };

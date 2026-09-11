@@ -6,7 +6,7 @@ A simple, single-user web app to track your current stock portfolio.
 It stores accounts, cash balances, and stock holdings (positions).
 You can add stocks to your watchlist and notes to stocks.
 Portfolio value is automatically saved and a Telegram daily summary (portfolio performance, watchlist, holdings) is sent every weekday after US market close (4:20 PM ET).
-Portfolio value history can be imported from and exported to CSV.
+Portfolio value history is visualized with interactive charts (portfolio value, relative performance, exchange rate) and can be imported from and exported to CSV.
 No login, no account/transaction history, just your current holdings.
 
 NOTE: Account holdings (stocks) only work properly if the holding you add has USD ($) currency.
@@ -100,10 +100,15 @@ Modals
 <a href=".github/readme_assets/watchlist-edit.png"><img src=".github/readme_assets/watchlist-edit.png" width="400" alt="Modal: edit watchlist"></a>
 <a href=".github/readme_assets/notes-edit.png"><img src=".github/readme_assets/notes-edit.png" width="400" alt="Modal: edit note"></a>
 
+Portfolio history chart
+
+<a href=".github/readme_assets/portfolio-history-chart.png"><img src=".github/readme_assets/portfolio-history-chart.png" width="400" alt="Portfolio history chart"></a>
+
 Telegram daily notification
 
 <a href=".github/readme_assets/telegram-notification.png"><img src=".github/readme_assets/telegram-notification.png" width="400" alt="Telegram daily notification"></a>
 
-## Demo video
+## Demo videos
 
-https://www.youtube.com/watch?v=K7bcUhHu9ug
+- App: https://www.youtube.com/watch?v=K7bcUhHu9ug
+- Portfolio history: https://www.youtube.com/watch?v=0r3fwXoAXD0
