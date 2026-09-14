@@ -63,12 +63,14 @@ const WatchlistEditorRow = ({ item }: { item: WatchlistItem }) => {
       <input
         aria-label="Ticker"
         className={`${inputClass} uppercase`}
+        autoComplete="off"
         value={ticker}
         onChange={(event) => setTicker(sanitizeWatchlistTicker(event.target.value))}
       />
       <input
         aria-label="Display name"
         className={inputClass}
+        autoComplete="off"
         placeholder="Optional name"
         value={displayName}
         onChange={(event) => setDisplayName(event.target.value)}
@@ -157,6 +159,7 @@ const AddWatchlistItem = () => {
       <input
         aria-label="New ticker"
         className={`${inputClass} uppercase`}
+        autoComplete="off"
         placeholder="e.g. ^GSPC"
         value={ticker}
         onChange={(event) => setTicker(sanitizeWatchlistTicker(event.target.value))}
@@ -164,6 +167,7 @@ const AddWatchlistItem = () => {
       <input
         aria-label="New display name"
         className={inputClass}
+        autoComplete="off"
         placeholder="Optional name"
         value={displayName}
         onChange={(event) => setDisplayName(event.target.value)}

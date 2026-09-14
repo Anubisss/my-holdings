@@ -25,6 +25,24 @@ const getFocusable = (container: HTMLElement): HTMLElement[] =>
     (element) => element.offsetParent !== null || element === document.activeElement,
   );
 
+// Whether a touch that landed on `target` has something inside the dialog that
+// can scroll it — the dialog's own scroll box, or a nested scroller such as a
+// `textarea` with overflowing text. When nothing can, iOS hands the drag to the
+// page behind the modal, so the caller cancels it instead.
+const canConsumeScroll = (target: EventTarget | null, dialog: HTMLElement | null) => {
+  if (!dialog || !(target instanceof Node)) return false;
+
+  let element = target instanceof HTMLElement ? target : target.parentElement;
+  while (element && dialog.contains(element)) {
+    const { overflowY } = getComputedStyle(element);
+    const isScroller = overflowY === 'auto' || overflowY === 'scroll';
+    if (isScroller && element.scrollHeight > element.clientHeight) return true;
+    element = element.parentElement;
+  }
+
+  return false;
+};
+
 type ModalProps = {
   title: string;
   onClose: () => void;
@@ -96,31 +114,43 @@ export const Modal = ({ title, onClose, isLocked = false, size = 'md', children 
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onClose, isLocked]);
 
-  // Lock scrolling on the page behind the modal while it's open. Setting
-  // `overflow: hidden` alone isn't enough on iOS Safari (it still touch-scrolls
-  // the body), so we also pin the body with `position: fixed` at the current
-  // scroll offset and restore both the styles and the scroll position on close.
+  // Lock scrolling on the page behind the modal while it's open. `overflow:
+  // hidden` goes on the root element as well as the body: on the body alone it
+  // only reaches the viewport through legacy propagation, which iOS honours for
+  // wheel but not always for touch. Touch drags that start outside the dialog
+  // are additionally cancelled by hand, since iOS can begin a touch scroll
+  // before the listener exists. The body must not be pinned with `position:
+  // fixed`: that resets the scroll offset, which Chrome on iOS reads as "back at
+  // the top of the page", so it resizes its web view for the toolbars it is
+  // about to show and leaves a strip of browser chrome below the page. React
+  // registers `touchmove` passively at the root, hence the manual listener.
   useEffect(() => {
-    const { body } = document;
-    const scrollY = window.scrollY;
-    const previous = {
-      overflow: body.style.overflow,
-      position: body.style.position,
-      top: body.style.top,
-      width: body.style.width,
+    const { body, documentElement: root } = document;
+    const previous = { body: body.style.overflow, root: root.style.overflow };
+
+    // Decided once per gesture: the check reads layout, which is too expensive
+    // to repeat on every move event.
+    let isDragAllowed = false;
+
+    const handleTouchStart = (event: TouchEvent) => {
+      isDragAllowed = canConsumeScroll(event.target, contentRef.current);
+    };
+
+    const handleTouchMove = (event: TouchEvent) => {
+      if (isDragAllowed) return;
+      if (event.cancelable) event.preventDefault();
     };
 
     body.style.overflow = 'hidden';
-    body.style.position = 'fixed';
-    body.style.top = `-${scrollY}px`;
-    body.style.width = '100%';
+    root.style.overflow = 'hidden';
+    document.addEventListener('touchstart', handleTouchStart, { passive: true });
+    document.addEventListener('touchmove', handleTouchMove, { passive: false });
 
     return () => {
-      body.style.overflow = previous.overflow;
-      body.style.position = previous.position;
-      body.style.top = previous.top;
-      body.style.width = previous.width;
-      window.scrollTo(0, scrollY);
+      body.style.overflow = previous.body;
+      root.style.overflow = previous.root;
+      document.removeEventListener('touchstart', handleTouchStart);
+      document.removeEventListener('touchmove', handleTouchMove);
     };
   }, []);
 
@@ -148,7 +178,7 @@ export const Modal = ({ title, onClose, isLocked = false, size = 'md', children 
       <div
         ref={contentRef}
         tabIndex={-1}
-        className={`w-full ${modalSizes[size]} max-h-[85dvh] overflow-y-auto rounded-2xl bg-white p-5 shadow-xl outline-none dark:bg-slate-900 sm:max-h-[90vh]`}
+        className={`w-full ${modalSizes[size]} max-h-[min(85dvh,100%)] overflow-y-auto overscroll-contain rounded-2xl bg-white p-5 shadow-xl outline-none dark:bg-slate-900 sm:max-h-[min(90vh,100%)]`}
       >
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">{title}</h2>
