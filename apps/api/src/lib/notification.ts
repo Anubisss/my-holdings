@@ -259,7 +259,7 @@ export const sendDailyNotification = async (dateStr: string): Promise<void> => {
     const watchlistTickers = watchlistRows.map((w) => w.ticker);
     const allTickers = [...new Set([...holdingTickers, ...watchlistTickers])];
 
-    const quotes = allTickers.length > 0 ? await getQuotes(withFxTicker(allTickers)) : undefined;
+    const quotes = await getQuotes(withFxTicker(allTickers));
 
     const summary = toSummaryDto(allAccounts, allHoldings, quotes, config);
     const watchlistDtos = watchlistRows.map((row) =>

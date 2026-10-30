@@ -35,8 +35,7 @@ const attemptSave = async (dateStr: string): Promise<void> => {
   const allAccounts = db.select().from(accounts).all();
   const allHoldings = db.select().from(holdings).all();
 
-  const tickers = allHoldings.map((h) => h.ticker);
-  const quotes = tickers.length > 0 ? await getQuotes(withFxTicker(tickers)) : undefined;
+  const quotes = await getQuotes(withFxTicker(allHoldings.map((h) => h.ticker)));
 
   const summary = toSummaryDto(allAccounts, allHoldings, quotes, config);
 
